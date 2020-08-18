@@ -10,9 +10,14 @@
 	 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript">
+//This should increment page numbers when user goes forward? Hopefully? and decrement when they go back
+		var clicks = 0;
 		$(document).ready(function(){
-			$("#submit").click(function(){
-				$("#nextpage").load('pg2.html #nextpage');
+			$("button2").click(function(){
+				clicks++;
+				$("#nextpage").load('pg'+ clicks + '.html');
+			$("button").click(function(){
+				clicks--;
 			});
 		});
 		</script>
@@ -30,13 +35,13 @@
 			<p> If you move the balloon close to the sweater and the wall and release it, you should not notice anything unusual.</p>
 			<p> Try it out and click <em>Next</em> when you are ready to move on.</p><br>
 			<div class="navigation"> 
-				<button type="button" class="btn btn-default" disabled="disabled" > Back </button>
-				<button type="button" class="btn btn-default" id="submit"> Next </button> 
+				<button type="button" class="btn btn-default" disabled="disabled" > Previous </button>
+				<button type="button2" class="btn btn-default" id="submit"> Next </button> 
 			</div>
 		</div>
 </div>
 </body> 
 <!-- <footer = class="bottom">
-	<p> Yes, I'm aware this site looks like it was made in 1996. I swear the rest looks better. </p>
+
 </footer> -->
 </html>

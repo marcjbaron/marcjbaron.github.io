@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div class = "info" id = "nextpage"> 
+		<h2> This is a multipel choice question? </h2>
+		<label for="var_string"><input type="radio" name="variable" value="0" id="var_string" />Thing 1</label><br>
+	<label for="var_join"><input type="radio" name="variable" value="0" id="var_join" />Thing 2</label><br>
+	<label for="var_info"><input type="radio" name="variable" value="0" id="var_info" />Thing 3</label><br>
+	<label for="var_condition"><input type="radio" name="variable" value="0" id="var_condition"/>Thing 4</label><br>
+		<p> Rub the balloon on the sweater, then move the balloon beside the sweater and release it. What happens? </p>
+		<textarea rows="3" cols="60" name="response"> </textarea>
+		<p> Now move the balloon beside the wall and release it. Compare what you observe here with what you saw in the previous question. </p>
+		<textarea rows="3" cols="60" name="response"> </textarea>
+		
+<!-- In an actual quiz, ask how confident student is and include that in their "score";
+	certainty-based marking: initial idea: more confident, higher the extremes will be (so could have bad scores as well as really good scores.  -->
+
+		<div class="navigation"> 
+			<button type="button" class="btn btn-default" id="submitback" onclick="history.back()"> Previous </button>
+			<button type="button2" class="btn btn-default" id="submit"> Next </button> 
+		</div>
+</div>
+</body>

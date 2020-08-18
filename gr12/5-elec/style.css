@@ -35,6 +35,12 @@ h2 {
 	grid-template-rows: 1fr;
 }
 
+."btn btn-default" {
+	position: fixed;
+	bottom:0;
+	right: 0;
+
+}
 
 .navigation a {
 	text-decoration: none;
@@ -44,6 +50,9 @@ h2 {
 
 }
 
+textarea {
+	resize: none;
+}
 
 
 
