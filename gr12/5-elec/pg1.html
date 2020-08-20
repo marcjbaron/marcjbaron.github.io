@@ -10,7 +10,7 @@
 	 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript">
-		var clicks = 0;
+		var clicks = 1;
 		$(document).ready(function(){
 			$("button").click(function(){
 				clicks++;
@@ -32,8 +32,8 @@
 			<p> If you move the balloon close to the sweater and the wall and release it, you should not notice anything unusual.</p>
 			<p> Try it out and click <em>Next</em> when you are ready to move on.</p><br>
 			<div class="navigation"> 
-				<button type="button" class="btn btn-default" disabled="disabled" > Previous </button>
-				<button type="button" class="btn btn-default" id="submit"> Next </button> 
+				<button type="button" id = "prev" class="btn btn-default" disabled="disabled" > Previous </button>
+				<button type="button" id = "next" class="btn btn-default" id="submit"> Next </button> 
 			</div>
 		</div>
 </div>
