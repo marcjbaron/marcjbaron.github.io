@@ -13,12 +13,11 @@
 		$(document).ready(function(){
 			$("button").click(function(){
 				clicks++;
-				$("#nextpage").load('pg'+ clicks + '.html');
+				$("#nextpage").load(`pg${clicks}.html`);
 			});
 		});
 		</script>
 </head>
-<link rel="stylesheet" type="text/css" href="style.css">
 <body>
 <div class = "info" id = "nextpage"> 
   <p> Now you will add the second balloon to the simulation. You should see two balloons in the simulation: one green balloon and one yellow balloon.</p>
