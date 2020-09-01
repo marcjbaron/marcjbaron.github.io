@@ -8,4 +8,4 @@ $(document).ready(function(){
   $("button").previous.click(function(){
   clicks--;
   history.back();
-};
+}));
