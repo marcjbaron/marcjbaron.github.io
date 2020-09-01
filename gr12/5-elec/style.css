@@ -6,12 +6,19 @@
 	- bootstrap for resizing window
 	- 
 */
+@media only screen and (max-width: 1000px){
+.container { 
+  flex-wrap: wrap;
+}
+
+}
 
 h1 {
 	background-color: lightblue;	
 	font-family: fantasy;
 	border: 2px solid #66BADF;
-	text-align: center;
+	border-radius: 15px;
+        text-align: center;
 
 }
 
@@ -21,7 +28,8 @@ h2 {
 	background-color: lightblue;	
 	font-family: fantasy;
 	border: 2px solid #66BADF;
-	text-align: center; 
+	border-radius: 10px;
+        text-align: center; 
 }
 
 table {
@@ -59,9 +67,17 @@ p {
 	font-size: 15px;
 	grid-gap: 20px;
 	grid-template: columns;
-	grid-template-rows: 1fr;
+	grid-template-rows: 1fr;\
+        overflow: scroll;
 }
-}
+
+.container .phet{
+/* resize: both;
+ overflow: auto;
+ position: relative;
+
+}*/
+
 ."btn btn-default" {
 	position: fixed;
 	bottom:0;
