@@ -262,10 +262,10 @@
       
         context.font = '16pt Calibri';
         context.fillStyle = 'blue';
-        var accLabel = ' m/s^2 ';
-        accLabel = accel.toFixed(2) + accLabel;
+	var aLabel = 'a = ';
+        aLabel = sLabel + accel.toFixed(4) + 'm/s^2 ';
         context.textAlign = 'left';
-        context.fillText(accLabel, 600, 20);
+        context.fillText(accLabel, 500, 20);
 
 
 
