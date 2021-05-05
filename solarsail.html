@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-8175315-26"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-8175315-26');
+</script>
+
+  <meta charset="utf-8">
+  <title>Solar sailboat</title>
+</head>
+
+<body style="font-family:sans-serif; font-size:15px; margin-left:10; margin-right:10;">
+<center>
+	<div id="canvasesdiv" style="position:relative; display:block; margin:auto; width:680px; height:330px"></div>
+    <canvas id="myCanvas" style="display: block; position: absolute; margin: 0 auto;display: block;
+        position: absolute; margin: 0 auto; top: 0; bottom: 0; left: 0; right: 0;" width="680" height="330"></canvas>
+    <div id="buttons">
+      <input type="button" id="play" value="Play" onclick="play()">
+      <input type="button" id="pause" value="Pause" onclick="pause()">
+      <input type="button" id="reset" value="Reset" onclick="reset()">
+    </div>
+
+</center>
+
+  <script>
+
+
+
+      function updateValues() {
+        masssliderValue = masssliderValueMin + (masssliderValueMax-masssliderValueMin)*(masssliderX-masssliderXMin)/(masssliderXMax-masssliderXMin);
+        mass = masssliderValue;
+        lengthsliderValue = lengthsliderValueMin + (lengthsliderValueMax-lengthsliderValueMin)*(lengthsliderX-lengthsliderXMin)/(lengthsliderXMax-lengthsliderXMin);
+        length = lengthsliderValue;
+      }
+
+      function play() {
+        window.clearTimeout(timer);
+        runFlag = 1;
+        runMotion();
+
+      }
+
+      function pause() {
+        window.clearTimeout(timer);
+        runFlag = 0;
+
+      }
+
+
+      function reset() {
+        window.clearTimeout(timer);
+        planet[0].x = planet[0].orbitalRadius;
+        planet[0].y = 0;
+        planet[0].vx = 0;
+        planet[0].vy = speedFactor*planet[0].speed;
+        timeInDays = 0;
+        accVal = 0;
+
+        masssliderValue = masssliderValueMin + (masssliderValueMax-masssliderValueMin)*(masssliderX-masssliderXMin)/(masssliderXMax-masssliderXMin);
+        mass = masssliderValue;
+        lengthsliderValue = lengthsliderValueMin + (lengthsliderValueMax-lengthsliderValueMin)*(lengthsliderX-lengthsliderXMin)/(lengthsliderXMax-lengthsliderXMin);
+        length = lengthsliderValue;
+        runFlag = 1;
+        runMotion();
+      }
+
+
+
+      var canvas = document.getElementById("myCanvas");
+      var context = canvas.getContext("2d");
+      canvas.onmousedown = myDown;							// mouse event handler for computer browsers
+	  canvas.onmouseup = myUp;								// mouse event handler for computer browsers
+	  canvas.addEventListener("touchstart", myTouchStart, false);	// touch handler for iPhones, iPads, and Androids
+	  canvas.addEventListener("touchmove", myTouchMove, false);	// touch handler for iPhones, iPads, and Androids
+	  canvas.addEventListener("touchend", myTouchEnd, false);		// touch handler for iPhones, iPads, and Androids
+      var myCheck = document.getElementById("myCheck");
+      var index = -1;
+      var xBase = 90;
+      var yBase = 80;
+      var xSupport = canvas.width/2;
+      var ySupport = yBase;
+      var xInit = 37;
+      var radius = 3;
+      var time = 0.0;
+      var  deltat = 1/100.0;
+
+      var mass = 600;      // in kg
+      var length = 300;   // in m
+
+      var timer;
+      var runFlag = 1;
+
+      var masssliderX = 180;
+      var masssliderY = 300;
+      var masssliderXMin = 80;
+      var masssliderXMax = 280;
+      var masssliderValueMin = 200;
+      var masssliderValueMax = 1000;
+      var masssliderValue = mass;
+      var masssliderDecimals = 0;
+
+      var lengthsliderX = 460;
+      var lengthsliderY = 300;
+      var lengthsliderXMin = 440;
+      var lengthsliderXMax = 600;
+      var lengthsliderValueMin = 200;
+      var lengthsliderValueMax = 1000;
+      var lengthsliderValue = length;
+      var lengthsliderDecimals = 0;
+
+        var centerX = 1.0e11;
+        var centerY = -0.0e11;
+        var x, y, vx, vy;                           // position and velocity
+        var nPlanets = 1;  // number of planets
+        var planet = new Array(nPlanets+1);
+
+        planet[0] = {};
+        planet[0].orbitalRadius = 1.5e11;  // radius in meters
+        planet[0].speed = 0.0;            // speed in meters per second
+        planet[0].x = planet[0].orbitalRadius;   // the Earth
+        planet[0].y = 0;
+        planet[0].vx = 0;
+        planet[0].vy = planet[0].speed;
+        planet[0].trailColor = "#8888ff";
+        planet[0].gradient0 = "#d0d0ff";
+        planet[0].gradient1 = "#0000ff";
+        planet[0].radius = 10;
+
+        planet[1] = {};
+        planet[1].orbitalRadius = 0;  // radius in meters
+        planet[1].speed = 0.0;            // speed in meters per second
+        planet[1].x = 0;     // the Sun
+        planet[1].y = 0;
+        planet[1].vx = 0;
+        planet[1].vy = planet[1].speed;
+        planet[1].trailColor = "#ffd000";
+        planet[1].gradient0 = "#ffd000";
+        planet[1].gradient1 = "#cc9900";
+        planet[1].radius = 40;
+
+        var drawOrder = new Array(nPlanets);
+        for (var i = 0; i < nPlanets; i++) {
+         drawOrder[i] = {};
+         drawOrder[i].index = 0;
+         drawOrder[i].distance = 1.0e2;
+        }
+        var centerIndex = 1;
+        var timeInDays = 0;
+        var accVal = 0;
+        var drawIndex = 0;
+        var tempIndex = 0;
+        var tempDistance = 1.0e2;
+        var speedFactor = 1.0;
+        var newtonG = 6.67e-11;         // gravitational constant in SI units
+        var earthMass = 5.97e24;        // kilograms
+        var SunMass = 2.0e30;
+
+
+
+      runMotion();
+
+    function drawMotion() {
+
+  //    console.log("In the drawMotion function, with runFlag = " + runFlag );
+
+
+  //    console.log("In the drawMotion function, with runFlag = " + runFlag + " xPos = " + xPos + " time = " + time + " yPos = " + yPos);
+
+        // clear
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // set background color for the entire thing
+           context.fillStyle = "#ffd";
+           context.fillRect(0, 0, canvas.width, canvas.height);
+
+       // draw mass slider
+
+           drawSlider(masssliderX, masssliderY, masssliderXMin, masssliderXMax, masssliderValueMin, masssliderValueMax, masssliderValue, masssliderDecimals);
+           var sLabel = 'mass = ';
+           sLabel = sLabel + masssliderValue.toFixed(masssliderDecimals) + ' kg';
+           context.font = '16pt Calibri';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           context.fillStyle = 'green';
+           context.fillText(sLabel,masssliderXMin+0.5*(masssliderXMax-masssliderXMin), masssliderY-25);
+
+
+       // draw length slider
+
+           drawSlider(lengthsliderX, lengthsliderY, lengthsliderXMin, lengthsliderXMax, lengthsliderValueMin, lengthsliderValueMax, lengthsliderValue, lengthsliderDecimals);
+           sLabel = 'sail length = ';
+           sLabel = sLabel + lengthsliderValue.toFixed(lengthsliderDecimals) + ' m';
+           context.font = '16pt Calibri';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           context.fillStyle = 'blue';
+           context.fillText(sLabel,lengthsliderXMin+0.5*(lengthsliderXMax-lengthsliderXMin), lengthsliderY-25);
+
+           index = index + 1;
+           time = index/100.0;
+   //        console.log(index + "  time = " + time + " x = " + xPos + " y = " + yPos);
+
+       // draw axes for the graph
+       //      drawAxes (xStart, yStart, graphX, graphY, xAxisOffset, xMajorTicks, yMajorTicks, xDecimals, yDecimals, xAxisLabel, yAxisLabel, graphLabel);
+
+            var metersPerPixel = 0.5e9;
+
+            drawIndex = -1;
+            for (var index = nPlanets; index >= 0; index--) {
+              pixelX = canvas.width/2 + (planet[index].x-centerX)/metersPerPixel;
+              pixelY = canvas.height/2 -40 - (planet[index].y-centerY)/metersPerPixel;
+              context.beginPath();
+              context.arc(pixelX, pixelY, planet[index].radius, 0, 2*Math.PI);
+              theGradient = context.createRadialGradient(pixelX-1, pixelY-2, 1, pixelX, pixelY, planet[index].radius);
+              theGradient.addColorStop(0, planet[index].gradient0);
+              theGradient.addColorStop(1, planet[index].gradient1);
+              context.fillStyle = theGradient;
+              context.fill();
+
+              if (index == 0) {
+                // draw the sails
+                context.lineWidth = 4;
+                context.strokeStyle = "grey";
+                context.beginPath();
+                context.moveTo(pixelX,pixelY+4);
+                context.lineTo(pixelX,pixelY+4+length/10);
+                context.stroke();
+                context.beginPath();
+                context.moveTo(pixelX,pixelY-4);
+                context.lineTo(pixelX,pixelY-4-length/10);
+                context.stroke();
+
+                var r = Math.sqrt(planet[0].x*planet[0].x + planet[0].y*planet[0].y);
+                var accel = newtonG * SunMass / (r * r);  // magnitude of the gravitational acceleration
+                accel =  accel - (1e-5)*length*length*planet[0].orbitalRadius*planet[0].orbitalRadius/(mass*r*r);    // adjust because of radiation pressure
+                var ax = -accel * planet[0].x / r;
+                var ay = -accel * planet[0].y / r;
+                drawArrow(1000*ax,1000*ay,pixelX,pixelY ,"red");  // acceleration
+//                drawArrow(planet[0].vx/3e3,planet[0].vy/3e3,pixelX,pixelY ,"#33aa33");  // velocity
+             }
+
+
+            }
+
+
+
+        context.font = '16pt Calibri';
+        context.fillStyle = 'black';
+        var timeLabel = ' days ';
+        timeLabel = timeInDays.toFixed(1) + timeLabel;
+        context.textAlign = 'left';
+        context.fillText(timeLabel, 20, 20);
+      
+      
+        context.font = '16pt Calibri';
+        context.fillStyle = 'blue';
+        var accLabel = ' m/s^2 ';
+        accLabel = accVal.toFixed(1) + accLabel;
+        context.textAlign = 'right';
+        context.fillText(accLabel, 20, 20);
+
+
+
+    }
+
+    function runMotion() {
+            var dt = 5000;                  // time step in seconds
+            var r;
+            var accel;
+            var ax;
+            var ay;
+            r = Math.sqrt(planet[0].x*planet[0].x + planet[0].y*planet[0].y);
+            if (r < 0.1*planet[0].orbitalRadius) reset();
+
+            if ((speedFactor > 0.5) || (timeInDays <= 60)) {
+              for (var i = 0; i < nPlanets; i++) {
+    //             console.log(i);
+                 r = Math.sqrt(planet[i].x*planet[i].x + planet[i].y*planet[i].y);
+                 accel = newtonG * SunMass / (r * r);  // magnitude of the acceleration
+                 accel =  accel - (1e-5)*length*length*planet[0].orbitalRadius*planet[0].orbitalRadius/(mass*r*r);    // adjust because of radiation pressure
+                 ax = -accel * planet[i].x / r;
+                 ay = -accel * planet[i].y / r;
+
+                 planet[i].vx += ax * dt;
+                 planet[i].vy += ay * dt;
+                 planet[i].x += planet[i].vx * dt;
+                 planet[i].y += planet[i].vy * dt;
+              }
+              timeInDays = timeInDays + dt/86400;
+              accVal = accel;
+              drawMotion();
+            }
+
+        if (runFlag == 1) {
+          timer = window.setTimeout(runMotion, 300/30);
+        }
+      }
+
+    function drawArrow(Fx,Fy,Px,Py, arrowColor) {
+           var theta = Math.atan2(Fy,Fx);
+           context.strokeStyle = arrowColor;
+           context.lineWidth = 4;
+           context.beginPath();
+           context.moveTo(Px, Py);
+           context.lineTo(Px+5*Fx, Py-5*Fy);
+           context.stroke();
+
+           context.lineWidth = 2;
+
+           var Fmag = Math.sqrt(Fx*Fx+Fy*Fy);
+           if (Fmag > 5) Fmag = 5;
+
+           context.fillStyle = arrowColor;
+           context.beginPath();
+           context.moveTo(Px+5*Fx-3*Fmag*Math.cos(theta+0.25*(3.1416/2)),Py-5*Fy+3*Fmag*Math.sin(theta+0.25*(3.1416/2)));
+           context.lineTo(Px+5*Fx,Py-5*Fy);
+           context.lineTo(Px+5*Fx-3*Fmag*Math.cos(theta-0.25*(3.1416/2)),Py-5*Fy+3*Fmag*Math.sin(theta-0.25*(3.1416/2)));
+
+           context.stroke();
+           context.fill();
+
+    }
+
+    function drawAxes(xAxisStart,yAxisStart,xNum, yNum, xOffset, xIncrement, yIncrement, xNumDecimals, yNumDecimals, xAxisTitle, yAxisTitle, graphTitle) {
+        // set background color for the graph
+           context.fillStyle = "#eff";
+           context.fillRect(xAxisStart, yAxisStart, 40*xNum, 40*yNum);
+
+           var axisLabel = '';
+           var axisValue = 0;
+
+         // vertical grid lines
+         context.lineWidth = 2;
+         context.strokeStyle = '#888';
+
+         for (var i = 0; i <= xNum; i++) {
+           context.beginPath();
+           context.moveTo(xAxisStart+40*i, yAxisStart);
+           context.lineTo(xAxisStart+40*i, yAxisStart+40*yNum+10);
+           context.stroke();
+           context.font = '14pt Calibri';
+           context.fillStyle = 'black';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           axisValue = xOffset+xIncrement*(i);
+           axisLabel = axisValue.toFixed(xNumDecimals);
+           context.fillText(axisLabel, xAxisStart+40*i, yAxisStart+40*yNum+20);
+          }
+
+         // horizontal grid lines
+         for (i = 0; i <= yNum; i++) {
+           context.beginPath();
+           context.moveTo(xAxisStart-10, yAxisStart+40*i);
+           context.lineTo(xAxisStart+40*xNum, yAxisStart+40*i);
+           context.stroke();
+           context.font = '14pt Calibri';
+           context.fillStyle = 'black';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           axisValue = yIncrement*(yNum-i);
+           axisLabel = axisValue.toFixed(yNumDecimals);
+           context.fillText(axisLabel, xAxisStart-30, yAxisStart+40*i);
+
+          }
+
+         // x-axis
+           context.strokeStyle = '#000';
+           context.lineWidth = 4;
+           context.beginPath();
+           context.moveTo(xAxisStart-1, yAxisStart+40*yNum);
+           context.lineTo(xAxisStart+40*xNum+20, yAxisStart+40*yNum);
+           context.stroke();
+           context.moveTo(xAxisStart+40*xNum+10, yAxisStart+40*yNum-6);
+           context.lineTo(xAxisStart+40*xNum+20, yAxisStart+40*yNum);
+           context.lineTo(xAxisStart+40*xNum+10, yAxisStart+40*yNum+6);
+           context.lineJoin = 'miter';
+           context.stroke();
+           context.font = '16pt Calibri';
+           context.fillStyle = 'black';
+           context.textAlign = 'left';
+           context.fillText(xAxisTitle, xAxisStart+40*xNum+24, yAxisStart+40*yNum);
+
+         // y-axis
+           context.strokeStyle = '#000';
+           context.beginPath();
+           context.moveTo(xAxisStart, yAxisStart-20);
+           context.lineTo(xAxisStart, yAxisStart+40*yNum);
+           context.stroke();
+           context.moveTo(xAxisStart-6, yAxisStart-10);
+           context.lineTo(xAxisStart, yAxisStart-20);
+           context.lineTo(xAxisStart+6, yAxisStart-10);
+           context.lineJoin = 'miter';
+           context.stroke();
+           context.strokeStyle = '#000';
+           context.textAlign = 'center';
+  //         console.log("In the drawMotion function, with yAxisTitle = " + yAxisTitle + xAxisStart );
+
+           context.font = '16pt Calibri';
+           context.fillStyle = 'black';
+           context.fillText(yAxisTitle, xAxisStart-30, yAxisStart - 35);
+
+           // graph title
+           context.font = 'bold 18pt Calibri';
+           context.fillStyle = 'purple';
+           context.textAlign = 'center';
+           context.fillText(graphTitle, xAxisStart+40*xNum/2, yAxisStart-24);
+
+    }
+
+    function drawAxesMidY(xAxisStart,yAxisStart,xNum, yNum, xOffset, xIncrement, yIncrement, xNumDecimals, yNumDecimals, xAxisTitle, yAxisTitle, graphTitle) {
+        // set background color for the graph
+           context.fillStyle = "#eff";
+           context.fillRect(xAxisStart, yAxisStart, 40*xNum, 40*yNum);
+
+           var axisLabel = '';
+           var axisValue = 0;
+
+         // vertical grid lines
+         context.lineWidth = 2;
+         context.strokeStyle = '#888';
+
+         for (var i = 0; i <= xNum; i++) {
+           context.beginPath();
+           context.moveTo(xAxisStart+40*i, yAxisStart);
+           context.lineTo(xAxisStart+40*i, yAxisStart+40*yNum/2+10);
+           context.stroke();
+           context.moveTo(xAxisStart+40*i, yAxisStart+40*yNum/2+30);
+           context.lineTo(xAxisStart+40*i, yAxisStart+40*yNum);
+           context.stroke();
+           context.font = '14pt Calibri';
+           context.fillStyle = 'black';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           axisValue = xOffset + xIncrement*(i);
+           axisLabel = axisValue.toFixed(xNumDecimals);
+           if (i > 0) context.fillText(axisLabel, xAxisStart+40*i, yAxisStart+40*yNum/2+20);
+          }
+
+         // horizontal grid lines
+         for (i = 0; i <= yNum; i++) {
+           context.beginPath();
+           context.moveTo(xAxisStart-10, yAxisStart+40*i);
+           context.lineTo(xAxisStart+40*xNum, yAxisStart+40*i);
+           context.stroke();
+           context.font = '14pt Calibri';
+           context.fillStyle = 'black';
+           context.textAlign = 'center';
+           context.textBaseline = 'middle';
+           axisValue = yIncrement*(yNum/2-i);
+           axisLabel = axisValue.toFixed(yNumDecimals);
+           context.fillText(axisLabel, xAxisStart-30, yAxisStart+40*i);
+
+          }
+
+         // x-axis
+           context.strokeStyle = '#000';
+           context.lineWidth = 4;
+           context.beginPath();
+           context.moveTo(xAxisStart-1, yAxisStart+40*yNum/2);
+           context.lineTo(xAxisStart+40*xNum+20, yAxisStart+40*yNum/2);
+           context.stroke();
+           context.moveTo(xAxisStart+40*xNum+10, yAxisStart+40*yNum/2-6);
+           context.lineTo(xAxisStart+40*xNum+20, yAxisStart+40*yNum/2);
+           context.lineTo(xAxisStart+40*xNum+10, yAxisStart+40*yNum/2+6);
+           context.lineJoin = 'miter';
+           context.stroke();
+           context.font = '16pt Calibri';
+           context.fillStyle = 'black';
+           context.textAlign = 'left';
+           context.fillText(xAxisTitle, xAxisStart+40*xNum+24, yAxisStart+40*yNum/2);
+
+         // y-axis
+           context.strokeStyle = '#000';
+           context.beginPath();
+           context.moveTo(xAxisStart, yAxisStart-20);
+           context.lineTo(xAxisStart, yAxisStart+40*yNum);
+           context.stroke();
+           context.moveTo(xAxisStart-6, yAxisStart-10);
+           context.lineTo(xAxisStart, yAxisStart-20);
+           context.lineTo(xAxisStart+6, yAxisStart-10);
+           context.lineJoin = 'miter';
+           context.stroke();
+           context.strokeStyle = '#000';
+           context.textAlign = 'center';
+  //         console.log("In the drawMotion function, with yAxisTitle = " + yAxisTitle + xAxisStart );
+
+           context.font = '16pt Calibri';
+           context.fillStyle = 'black';
+           context.fillText(yAxisTitle, xAxisStart-30, yAxisStart - 35);
+
+           // graph title
+           context.font = 'bold 18pt Calibri';
+           context.fillStyle = 'purple';
+           context.textAlign = 'center';
+           context.fillText(graphTitle, xAxisStart+40*xNum/2, yAxisStart-24);
+
+    }
+
+    function drawSlider(sliderX, sliderY, sliderXMin, sliderXMax, sliderValueMin, sliderValueMax, sliderValue, sliderDecimals) {
+
+
+       context.strokeStyle = '#999';
+       context.lineWidth = 8;
+       context.beginPath();
+       context.moveTo(sliderXMin,sliderY);
+       context.lineTo(sliderXMax,sliderY);
+       context.stroke();
+
+       context.strokeStyle = '#44f';
+       context.lineWidth = 8;
+       context.beginPath();
+       context.moveTo(sliderXMin,sliderY);
+       context.lineTo(sliderX,sliderY);
+       context.stroke();
+
+       context.beginPath();
+       context.arc(sliderX, sliderY, 10, 0, 2 * Math.PI, false);
+       context.fillStyle = '#00f';
+       context.fill();
+       context.lineWidth = 1;
+       context.strokeStyle = 'black';
+       context.stroke();
+
+      }
+
+//  Mouse and Touch event functions from  Wolfgang Bauer
+
+function whereClicked(x_,y_,what_) {    // underscore denotes local variables
+	//if (what_ == 'down') {console.log('('+x_+','+y_+')'+what_)};
+//	console.log('('+x_+','+y_+')'+what_);
+//    console.log("x offset = " + charge1X + " y offset = " + charge1Y);
+      if ((Math.abs(x_ - (masssliderX)) < 40) && (Math.abs(y_ - masssliderY) < 40))   // moving the mass slider
+      {
+        masssliderX = x_ ;
+        if (masssliderX < masssliderXMin) masssliderX = masssliderXMin;
+        if (masssliderX > masssliderXMax) masssliderX = masssliderXMax;
+//        reset();
+        updateValues();
+      }
+      else if ((Math.abs(x_ - (lengthsliderX)) < 40) && (Math.abs(y_ - lengthsliderY) < 40))   // moving the length slider
+      {
+        lengthsliderX = x_ ;
+        if (lengthsliderX < lengthsliderXMin) lengthsliderX = lengthsliderXMin;
+        if (lengthsliderX > lengthsliderXMax) lengthsliderX = lengthsliderXMax;
+//        reset();
+        updateValues();
+      }
+//        reset();
+//      }
+//      else if ((Math.abs(x_ - (charge2X)) < 15) && (Math.abs(y_ - charge2Y) < 15))  // moving the right-hand charge
+//      {
+//        charge2X = x_ ;
+//        charge2Y = y_ ;
+//        reset();
+//      }
+
+	if (what_ == 'down') {
+//		dragRect = true;
+//		x1 = x_;     // x1, y1 are global variables
+//		y1 = y_;
+	}
+	if (what_ == 'move') {
+//		dragRect = true;
+//		dx = x_-x1;
+//		dy = y_-y1;
+	}
+	if (what_ == 'up') {
+//		dragRect = false;
+//		dx = x_-x1;
+//		dy = y_-y1;
+	}
+}
+
+function myMove(event){
+	var xClick = event.pageX - canvasesdiv.offsetLeft;
+	var yClick = event.pageY - canvasesdiv.offsetTop;
+	whereClicked(xClick,yClick,'move');
+//	drawAll();
+//	drawMotion();
+
+}
+
+function myDown(event){
+	var xClick = event.pageX - canvasesdiv.offsetLeft;
+	var yClick = event.pageY - canvasesdiv.offsetTop;
+	whereClicked(xClick,yClick,'down');
+	canvas.onmousemove = myMove;
+//	drawMotion();
+}
+
+function myUp(event){
+	var xClick = event.pageX - canvasesdiv.offsetLeft;
+	var yClick = event.pageY - canvasesdiv.offsetTop;
+	whereClicked(xClick,yClick,'up');
+	canvas.onmousemove = null;
+//	drawMotion();
+}
+
+function myTouchMove(event){
+	event.preventDefault();
+	var xClick = event.targetTouches[0].pageX - canvasesdiv.offsetLeft;
+	var yClick = event.targetTouches[0].pageY - canvasesdiv.offsetTop;
+	whereClicked(xClick,yClick,'move');
+//	drawMotion();
+}
+
+function myTouchStart(event){
+	event.preventDefault();
+	var xClick = event.targetTouches[0].pageX - canvasesdiv.offsetLeft;
+	var yClick = event.targetTouches[0].pageY - canvasesdiv.offsetTop;
+	whereClicked(xClick,yClick,'down');
+//	drawMotion();
+}
+
+function myTouchEnd(event){
+	event.preventDefault();
+	var xClick = event.targetTouches[0].pageX - canvasesdiv.offsetLeft;
+	var yClick = event.targetTouches[0].pageY - canvasesdiv.offsetTop;
+	whereClicked(xClick,yClick,'up');
+//	drawMotion();
+}
+
+
+  </script>
+<p>This is a simulation of a solar sail - a satellite or space probe that uses the radiation pressure of
+sunlight, reflecting from its sails, as its form of propulsion. The solar sail starts from rest at the same
+distance from the Sun that the Earth is. Use the sliders to adjust the mass of the solar sail and the length of each
+side of the sail, which we assume to be square.</p>
+
+<p>The large yellow object is the Sun. The smaller blue object is the solar sail. The arrow attached to the solar
+sail represents the acceleration of the sail. The acceleration comes from the vector sum of the gravitational force
+the Sun exerts on the solar sail (that force is pointed toward the Sun), and the force associated with radiation pressure
+(that force points away from the Sun).</p>
+
+<p>Simulation written by Andrew Duffy, and first posted on 1-31-2018.</p>
+
+
+    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" rel="dct:type">work</span> by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Andrew Duffy</span> is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.<br />This simulation can be found in the collection at <a xmlns:dct="http://purl.org/dc/terms/" href="http://physics.bu.edu/~duffy/classroom.html" rel="dct:source">http://physics.bu.edu/~duffy/classroom.html</a>.
+
+   <p>The counter has been running on this page since 8-13-2018. The number of people accessing the page since then is:
+<br><img src="http://physics.bu.edu/cgi-bin/Count.cgi?df=solar_sailboat.dat" align="absmiddle">
+
+</body>
+</html>
