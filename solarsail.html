@@ -256,7 +256,7 @@
         context.font = '16pt Calibri';
         context.fillStyle = 'black';
         var timeLabel = ' days ';
-        timeLabel = timeInDays.toFixed(1) + timeLabel;
+        timeLabel = timeInDays.toFixed(2) + timeLabel;
         context.textAlign = 'left';
         context.fillText(timeLabel, 20, 20);
       
@@ -264,7 +264,7 @@
         context.font = '16pt Calibri';
         context.fillStyle = 'blue';
         var accLabel = ' m/s^2 ';
-        accLabel = accVal.toFixed(1) + accLabel;
+        accLabel = accVal.toFixed(2) + accLabel;
         context.textAlign = 'left';
         context.fillText(accLabel, 600, 20);
 
