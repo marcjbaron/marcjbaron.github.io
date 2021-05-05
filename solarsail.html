@@ -63,7 +63,7 @@
         planet[0].vx = 0;
         planet[0].vy = speedFactor*planet[0].speed;
         timeInDays = 0;
-        accVal = 0;
+        accel = 0;
 
         masssliderValue = masssliderValueMin + (masssliderValueMax-masssliderValueMin)*(masssliderX-masssliderXMin)/(masssliderXMax-masssliderXMin);
         mass = masssliderValue;
@@ -155,7 +155,6 @@
         }
         var centerIndex = 1;
         var timeInDays = 0;
-        var accVal = 0;
         var drawIndex = 0;
         var tempIndex = 0;
         var tempDistance = 1.0e2;
@@ -264,7 +263,7 @@
         context.font = '16pt Calibri';
         context.fillStyle = 'blue';
         var accLabel = ' m/s^2 ';
-        accLabel = accVal.toFixed(2) + accLabel;
+        accLabel = accel.toFixed(2) + accLabel;
         context.textAlign = 'left';
         context.fillText(accLabel, 600, 20);
 
@@ -296,7 +295,6 @@
                  planet[i].y += planet[i].vy * dt;
               }
               timeInDays = timeInDays + dt/86400;
-              accVal = accel;
               drawMotion();
             }
 
