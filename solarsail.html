@@ -265,6 +265,13 @@
         accLabel = accLabel + accel.toFixed(4) + 'm s−2 ';
         context.textAlign = 'left';
         context.fillText(accLabel, 500, 20);
+	    
+	context.font = '16pt Calibri';
+        context.fillStyle = 'red';
+	var distLabel = 'r = ';
+        distLabel = distLabel + r.toFixed(3) + 'm s−2 ';
+        context.textAlign = 'left';
+        context.fillText(accLabel, 500, 100);
 
 
 
