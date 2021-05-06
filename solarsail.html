@@ -283,8 +283,9 @@
             var accel;
             var ax;
             var ay;
+	    var sunRadius = 6.96e8;
             r = Math.sqrt(planet[0].x*planet[0].x + planet[0].y*planet[0].y);
-            if (r < 0.1*planet[0].orbitalRadius) reset();
+            if (r < sunRadius) reset();
 
             if ((speedFactor > 0.5) || (timeInDays <= 60)) {
               for (var i = 0; i < nPlanets; i++) {
