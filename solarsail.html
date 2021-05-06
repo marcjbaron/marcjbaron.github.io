@@ -269,7 +269,7 @@
 	context.font = '16pt Calibri';
         context.fillStyle = 'red';
 	var distLabel = 'r = ';
-        distLabel = distLabel + r.toFixed(3) + 'm  ';
+        distLabel = distLabel + r.toExponential(3) + 'm  ';
         context.textAlign = 'left';
         context.fillText(distLabel, 500, 60);
 
