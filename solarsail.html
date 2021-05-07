@@ -216,7 +216,7 @@
        // draw axes for the graph
            //  drawAxes (xStart, yStart, graphX, graphY, xAxisOffset, xMajorTicks, yMajorTicks, xDecimals, yDecimals, xAxisLabel, yAxisLabel, graphLabel);
 
-            var metersPerPixel = 0.1e9;
+            var metersPerPixel = 0.5e9;
 
             drawIndex = -1;
             for (var index = nPlanets; index >= 0; index--) {
@@ -291,7 +291,7 @@
             var ay;
 	    var sunRadius = 6.96e8;
             r = Math.sqrt(planet[0].x*planet[0].x + planet[0].y*planet[0].y);
-            if (r < sunRadius) reset();
+            if (r < 2*sunRadius) reset();
 
             if ((speedFactor > 0.5) || (timeInDays <= 60)) {
               for (var i = 0; i < nPlanets; i++) {
