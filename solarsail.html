@@ -138,7 +138,7 @@
         planet[0].trailColor = "#8888ff";
         planet[0].gradient0 = "#d0d0ff";
         planet[0].gradient1 = "#0000ff";
-        planet[0].radius = 10;
+        planet[0].radius = 2;
 
         planet[1] = {};
         planet[1].orbitalRadius = 0;  // radius in meters
@@ -150,7 +150,7 @@
         planet[1].trailColor = "#ffd000";
         planet[1].gradient0 = "#ffd000";
         planet[1].gradient1 = "#cc9900";
-        planet[1].radius = 40;
+        planet[1].radius = 10;
 
         var drawOrder = new Array(nPlanets);
         for (var i = 0; i < nPlanets; i++) {
@@ -245,7 +245,7 @@
 
                 var r = Math.sqrt(planet[0].x*planet[0].x + planet[0].y*planet[0].y);
                 var accel = newtonG * SunMass / (r * r);  // magnitude of the gravitational acceleration
-                accel =  accel - (1e-5)*length*length*planet[0].orbitalRadius*planet[0].orbitalRadius/(mass*r*r);    // adjust because of radiation pressure
+                accel =  accel - (4.5e-6)*length*length*planet[0].orbitalRadius*planet[0].orbitalRadius/(mass*r*r);    // adjust because of radiation pressure
                 var ax = -accel * planet[0].x / r;
                 var ay = -accel * planet[0].y / r;
                 drawArrow(1000*ax,1000*ay,pixelX,pixelY ,"red");  // acceleration
