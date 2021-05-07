@@ -54,6 +54,12 @@
         runFlag = 0;
 
       }
+	
+//	function slomo() {
+//        window.clearTimeout(timer);
+//        runFlag = 0;
+
+//      }
 
 
       function reset() {
@@ -210,7 +216,7 @@
        // draw axes for the graph
            //  drawAxes (xStart, yStart, graphX, graphY, xAxisOffset, xMajorTicks, yMajorTicks, xDecimals, yDecimals, xAxisLabel, yAxisLabel, graphLabel);
 
-            var metersPerPixel = 0.5e9;
+            var metersPerPixel = 0.1e9;
 
             drawIndex = -1;
             for (var index = nPlanets; index >= 0; index--) {
