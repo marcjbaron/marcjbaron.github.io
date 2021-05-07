@@ -245,7 +245,7 @@
 
                 var r = Math.sqrt(planet[0].x*planet[0].x + planet[0].y*planet[0].y);
                 var accel = newtonG * SunMass / (r * r);  // magnitude of the gravitational acceleration
-                accel =  accel - (4.5e-6)*length*length*planet[0].orbitalRadius*planet[0].orbitalRadius/(mass*r*r);    // adjust because of radiation pressure
+                accel =  accel - (1e-5)*length*length*planet[0].orbitalRadius*planet[0].orbitalRadius/(mass*r*r);    // adjust because of radiation pressure
                 var ax = -accel * planet[0].x / r;
                 var ay = -accel * planet[0].y / r;
                 drawArrow(1000*ax,1000*ay,pixelX,pixelY ,"red");  // acceleration
